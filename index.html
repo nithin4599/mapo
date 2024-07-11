@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenStreetMap with Leaflet</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 0;
+      margin: 0;
+      background-color: #f0f0f0; /* Light gray background */
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #map {
+      height: 60vh; /* Adjust height based on viewport */
+      width: 100%;
+      margin: 20px 0;
+    }
+    #route-summary {
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Leaflet Map Example</h1>
+  <div id="map"></div>
+  <div id="route-summary"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var map = L.map('map').setView([13.0285, 77.6012], 12); // Center the map to somewhere between the two locations
+
+      // Define custom map styles
+      var mapStyles = {
+        darkGray: L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }),
+        lightGreen: L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }),
+        blackAndWhite: L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+      };
+
+      // Set default map style
+      mapStyles.darkGray.addTo(map);
+
+      // HBR Layout, Bangalore
+      var hbrLayout = L.marker([13.0285, 77.6276]).addTo(map)
+        .bindPopup('HBR Layout, Bangalore')
+        .openPopup();
+
+      // Rajajinagar, Bangalore
+      var rajajinagar = L.marker([12.9960, 77.5546]).addTo(map)
+        .bindPopup('Rajajinagar, Bangalore')
+        .openPopup();
+
+      // Routing between HBR Layout and Rajajinagar
+      var control = L.Routing.control({
+        waypoints: [
+          L.latLng(13.0285, 77.6276), // HBR Layout
+          L.latLng(12.9960, 77.5546)  // Rajajinagar
+        ],
+        routeWhileDragging: true
+      }).addTo(map);
+
+      control.on('routesfound', function(e) {
+        var routes = e.routes;
+        var summary = routes[0].summary;
+        // Distance in kilometers
+        var distance = (summary.totalDistance / 1000).toFixed(2);
+        // Time in hours and minutes
+        var time = Math.round(summary.totalTime / 60);
+        var hours = Math.floor(time / 60);
+        var minutes = time % 60;
+
+        document.getElementById('route-summary').innerHTML = `
+          <p>Distance: ${distance} km</p>
+          <p>Estimated Time: ${hours} hour(s) and ${minutes} minute(s)</p>
+        `;
+      });
+    });
+  </script>
+</body>
+</html>
